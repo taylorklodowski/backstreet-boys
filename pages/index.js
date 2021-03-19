@@ -1,65 +1,119 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Head from 'next/head';
+import { useState, useRef, useEffect } from 'react';
+import Track from '../components/Track';
+import Player from '../components/Player';
 
-export default function Home() {
+export default function MediaPlayer({ tracksById }) {
+  // set initial activeTrackId to first track
+  const [activeTrackId, setActiveTrackId] = useState(
+    Object.keys(tracksById)[0]
+  );
+
+  const playerRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const { title, imageUrl, mediaUrl } = tracksById[activeTrackId];
+
+  // play or pause the player ref
+  // when the value of isPlaying
+  // is changed
+  useEffect(() => {
+    if (isPlaying) {
+      playerRef.current.play();
+    } else {
+      playerRef.current.pause();
+    }
+  }, [isPlaying]);
+
+  function setActiveTrack(id) {
+    setActiveTrackId(id);
+    setIsPlaying(true);
+  }
+
+  function setActiveNextTrack(id) {
+    const trackArray = Object.keys(tracksById);
+    const trackPosition = trackArray.indexOf(id);
+
+    // if the position of the activeTrackId
+    // is not the last position
+    // increment the activeTrackId by 1
+    if (trackPosition !== trackArray.length - 1) {
+      setActiveTrackId(trackArray[trackPosition + 1]);
+    }
+  }
+
+  function setActivePreviousTrack(id) {
+    const trackArray = Object.keys(tracksById);
+    const trackPosition = trackArray.indexOf(id);
+
+    // if the position of the activeTrackId
+    // is not the first position
+    // decrement the activeTrackId by 1
+    if (trackPosition > 0) {
+      setActiveTrackId(trackArray[trackPosition - 1]);
+    }
+  }
+
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
-        <title>Create Next App</title>
+        <title>Backstreet's Back</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+      <div className="max-w-5xl mx-auto">
+        <h1 className="my-10 max-w-3xl mx-auto text-center text-4xl">
+          Backstreet's Back
         </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <div className="flex h-player">
+          <div className="w-1/2 h-2/3 px-4">
+            <Player
+              autoPlay={isPlaying}
+              ref={playerRef}
+              mediaSrc={mediaUrl}
+              imgSrc={imageUrl}
+              title={title}
+              onPlay={() => setIsPlaying(!isPlaying)}
+              onNext={() => setActiveNextTrack(activeTrackId)}
+              onPrevious={() => setActivePreviousTrack(activeTrackId)}
+            />
+          </div>
+          <div className="w-1/2 px-4 overflow-hidden overflow-y-scroll">
+            <ul className="">
+              {Object.keys(tracksById).map((id) => (
+                <li className="mb-4">
+                  <Track
+                    key={id}
+                    onClick={() => setActiveTrack(id)}
+                    isPlaying={activeTrackId === id && isPlaying}
+                    {...tracksById[id]}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+      </div>
     </div>
-  )
+  );
+}
+
+export async function getStaticProps() {
+  const res = await fetch(
+    'https://s3-us-west-2.amazonaws.com/anchor-website/challenges/bsb.json'
+  );
+
+  const { tracks } = await res.json();
+
+  // hash tracks by unique id for O(1)
+  // look up time when accessing active track data
+  // using array index for this example
+  const tracksById = tracks.reduce((tracksObj, track, idx) => {
+    tracksObj[idx] = track;
+    return tracksObj;
+  }, {});
+
+  return {
+    props: {
+      tracksById,
+    },
+  };
 }
