@@ -6,6 +6,10 @@ module.exports = {
       spacing: {
         player: '32rem',
       },
+      fontFamily: {
+        display: ['Monoton'],
+        body: ['Open Sans'],
+      },
     },
   },
   variants: {

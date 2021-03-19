@@ -3,8 +3,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const Player = React.forwardRef(
-  ({ mediaSrc, title, imgSrc, onNext, onPrevious, onPlay, autoPlay }, ref) => {
+  (
+    {
+      mediaSrc,
+      title,
+      imgSrc,
+      onNext,
+      onPrevious,
+      onPlay,
+      autoPlay,
+      isPlaying,
+    },
+    ref
+  ) => {
     const isAudio = mediaSrc.includes('.m4a');
+    const playPauseText = isPlaying ? 'Pause' : 'Play';
 
     return (
       <>
@@ -27,17 +40,27 @@ const Player = React.forwardRef(
           preload="auto"
           onEnded={onNext}
         />
-        <p className="text-sm text-gray-400">{title}</p>
-        <div>
-          <button type="button" id="previous" onClick={onPrevious}>
-            Previous
-          </button>
-          <button type="button" id="play-pause" onClick={onPlay}>
-            Play
-          </button>
-          <button type="button" id="next" onClick={onNext}>
-            Next
-          </button>
+        <div className="flex justify-between pt-2">
+          <div className="flex items-start pr-4">
+            <button
+              className="pr-2 text-sm focus:outline-none"
+              onClick={onPrevious}
+            >
+              Previous
+            </button>
+            <button
+              className="pr-2 text-sm focus:outline-none"
+              onClick={onPlay}
+            >
+              {playPauseText}
+            </button>
+            <button className="text-sm focus:outline-none" onClick={onNext}>
+              Next
+            </button>
+          </div>
+          <p className="self-center text-sm font-body text-gray-400 text-right">
+            {title}
+          </p>
         </div>
       </>
     );

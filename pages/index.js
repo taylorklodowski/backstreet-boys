@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import { useState, useRef, useEffect } from 'react';
 import Track from '../components/Track';
 import Player from '../components/Player';
@@ -55,12 +54,8 @@ export default function MediaPlayer({ tracksById }) {
 
   return (
     <div>
-      <Head>
-        <title>Backstreet's Back</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <div className="max-w-5xl mx-auto">
-        <h1 className="my-10 max-w-3xl mx-auto text-center text-4xl">
+        <h1 className="my-10 max-w-3xl mx-auto text-center text-5xl font-display">
           Backstreet's Back
         </h1>
         <div className="flex h-player">
@@ -74,6 +69,7 @@ export default function MediaPlayer({ tracksById }) {
               onPlay={() => setIsPlaying(!isPlaying)}
               onNext={() => setActiveNextTrack(activeTrackId)}
               onPrevious={() => setActivePreviousTrack(activeTrackId)}
+              isPlaying={isPlaying}
             />
           </div>
           <div className="w-1/2 px-4 overflow-hidden overflow-y-scroll">
@@ -104,8 +100,8 @@ export async function getStaticProps() {
   const { tracks } = await res.json();
 
   // hash tracks by unique id for O(1)
-  // look up time when accessing active track data
-  // using array index for this example
+  // look up time when accessing active
+  // track data later
   const tracksById = tracks.reduce((tracksObj, track, idx) => {
     tracksObj[idx] = track;
     return tracksObj;
