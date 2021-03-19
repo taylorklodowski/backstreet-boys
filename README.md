@@ -16,3 +16,4 @@ At the two hour mark I had most of the player functionality working, I spent the
 - set up eslint to identify any problematic code 
 - spent more time tightening up the height of the player when switching between image/video content 
 - add additional video functionality (mute / duration / volume), or pivot and use a third-party video player in favor of my custom solution
+- look into better solves for the https calls, perhaps convert all http urls to https to avoid Mixed Content warnings 
