@@ -95,6 +95,11 @@ export default function MediaPlayer({ tracksById }) {
 export async function getStaticProps() {
   const res = await fetch(
     'https://s3-us-west-2.amazonaws.com/anchor-website/challenges/bsb.json'
+    {
+      headers: {
+        'Content-Security-Policy': 'upgrade-insecure-requests',
+      },
+    }
   );
 
   const { tracks } = await res.json();
